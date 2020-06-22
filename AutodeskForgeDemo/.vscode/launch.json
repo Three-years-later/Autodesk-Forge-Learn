@@ -1,0 +1,17 @@
+{
+  // 使用 IntelliSense 了解相关属性。 
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [{
+    "type": "node",
+    "request": "launch",
+    "name": "Launch Program",
+    "program": "${workspaceFolder}\\start.js",
+    "env": {
+      "FORGE_CLIENT_ID": "GAdLcPTVbbEYg87gbb16lGk8vASSC0PF",
+      "FORGE_CLIENT_SECRET": "Mdn0uKORDYdh1a5y",
+      "FORGE_CALLBACK_URL": "http://localhost:3000/api/forge/callback/oauth"
+    }
+  }]
+}
