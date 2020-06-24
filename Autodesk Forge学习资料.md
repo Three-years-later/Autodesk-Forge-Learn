@@ -34,3 +34,17 @@
 * **开发人员指南**
 
 <https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/viewer_basics/>
+
+* **Autodesk Forge Viewer与Forge API Node.js客户端SDK的TypeScript声明文件发布！**
+
+<https://segmentfault.com/a/1190000018103570>
+
+* **auodesk forge viewer 常用链接**
+
+<https://blog.csdn.net/obf13/article/details/88058687>
+
+* **如何在vue-cli应用程序中显示基本的Autodesk Forge查看器？**
+
+<https://stackoverflow.com/questions/61518045/how-to-display-a-basic-autodesk-forge-viewer-in-a-vue-cli-app>
+
+>vue中怎么使用autodesk forge viewer
