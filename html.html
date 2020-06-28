@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    export default {
+      mounted() {
+        var viewer;
+        var options = {
+          env: 'AutodeskProduction',
+          api: 'derivativeV2', // for models uploaded to EMEA change this option to 'derivativeV2_EU'
+          getAccessToken: function (onTokenReady) {
+            var token =
+              'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJzY29wZSI6WyJidWNrZXQ6Y3JlYXRlIiwiYnVja2V0OnJlYWQiLCJkYXRhOnJlYWQiLCJkYXRhOndyaXRlIl0sImNsaWVudF9pZCI6Ikp2Vk40bzdBQ0V0ZE81TVpnZ21QMk9WM1RoNFJnRW54IiwiYXVkIjoiaHR0cHM6Ly9hdXRvZGVzay5jb20vYXVkL2p3dGV4cDYwIiwianRpIjoiMXBQcVhxOFBZVVU0WmtpTURsaGpUSUxCM3I1UEpBWk9kbTY4dTY2R1ZjajhDY3VzYjB3VFVId0E3emZPVk5JRCIsImV4cCI6MTU4ODIzNDEwOX0.zmY_BFmoZgL4TbtSVyTWKlrFdImEKbQTUsfQxBjsPV4';
+            var timeInSeconds = 3600; // Use value provided by Forge Authentication (OAuth) API
+            onTokenReady(token, timeInSeconds);
+          }
+        };
+        Autodesk.Viewing.Initializer(options, function () {
+          var htmlDiv = document.getElementById('forgeViewer');
+          viewer = new Autodesk.Viewing.GuiViewer3D(htmlDiv);
+          var startedCode = viewer.start();
+          if (startedCode > 0) {
+            console.error('Failed to create a Viewer: WebGL not supported.');
+            return;
+          }
+
+          console.log('Initialization complete, loading a model next...');
+
+        });
+        var documentId =
+          'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6ZmFjaWxpb25ld2NsaWVudGJ1Y2tldC9yYWNfYWR2YW5jZWRfc2FtcGxlX3Byb2plY3QucnZ0';
+        Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
+      },
+      methods: {
+        onDocumentLoadSuccess: function (viewerDocument) {
+          var defaultModel = viewerDocument.getRoot().getDefaultGeometry();
+          viewer.loadDocumentNode(viewerDocument, defaultModel);
+          viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, event => {
+
+          })
+        },
+        onDocumentLoadFailure: function () {
+          console.error('Failed fetching Forge manifest');
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
