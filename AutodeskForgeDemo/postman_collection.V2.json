@@ -1,0 +1,413 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Beijing-Workshop",
+		"_postman_id": "37432e07-57ab-30a1-ebea-873dc98e5bfb",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01-Authentication",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"access_token\", data.access_token);",
+							"postman.setEnvironmentVariable(\"expires_in\", data.expires_in);",
+							"postman.setEnvironmentVariable(\"token_type\", data.token_type);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/authentication/v1/authenticate",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "data:read data:write bucket:create bucket:read",
+							"type": "text"
+						},
+						{
+							"key": "",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "02-new bucket",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"if (request.data) {",
+							"    var requestData = JSON.parse(request.data);",
+							"    postman.setEnvironmentVariable(\"bucketKey\", requestData.bucketKey);",
+							"    postman.setEnvironmentVariable(\"bucketPolicy\", requestData.policyKey);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/oss/v2/buckets",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bucketKey\":\"xiaodong-persistent-bucket-test3\",\n  \"policyKey\":\"persistent\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "03-object - 2beams.ifc",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"if (responseCode.code === 200) {",
+							"    var data = JSON.parse(responseBody);",
+							"    postman.setEnvironmentVariable(\"urn\", data.objectId);",
+							"    postman.setEnvironmentVariable(\"urnBase64\", window.btoa(data.objectId));",
+							"    postman.setEnvironmentVariable(\"file_location\", data.location);",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/oss/v2/buckets/{{bucketKey}}/objects/aggregate-1.rvt",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": ""
+					}
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "04-POST job",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"",
+							"if (data) {",
+							"    if (data.urn) {",
+							"        postman.setEnvironmentVariable(\"urnBase64\", data.urn);",
+							"    }",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/job",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "x-ads-force",
+						"value": "true",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n        \"urn\": \"{{urnBase64}}\" \n    },\n    \"output\": {\n        \"destination\": {\n            \"region\": \"us\"\n        },\n        \"formats\": [\n        {\n            \"type\": \"svf\",\n            \"views\":[\"2d\", \"3d\"]\n        }]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "05-GET manifest",
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/{{urnBase64}}/manifest",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/vnd.api+json,application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "06-GET metadata",
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/{{urnBase64}}/metadata",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "07-GET metadata/​:guid",
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/{{urnBase64}}/metadata/{{metadata_guid}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					},
+					{
+						"key": "Accept-Encoding",
+						"value": "gzip",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "08-GET :urn/metadata/:guid/properties",
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/{{urnBase64}}/metadata/{{metadata_guid}}/properties",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "09-bucket details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"if (responseCode.code === 200 && responseBody) {",
+							"    var data = JSON.parse(responseBody);",
+							"    postman.setEnvironmentVariable(\"bucketKey\", data.bucketKey);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/oss/v2/buckets/{{bucketKey}}/details",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "10-buckets",
+			"request": {
+				"url": "{{base_domain}}/oss/v2/buckets?limit=100",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "11-bucket objects",
+			"request": {
+				"url": "{{base_domain}}/oss/v2/buckets/{{bucketKey}}/objects",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "12-GET formats",
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/formats",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "13-POST job - zip",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"var setEnvVar = function (tar, src) {",
+							"    if (!src) {",
+							"        return;",
+							"    }",
+							"    postman.setEnvironmentVariable(tar, src);",
+							"}",
+							"",
+							"if (data) {",
+							"    if (data.urn) {",
+							"        setEnvVar(\"urnBase64\", data.urn);",
+							"    }",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{base_domain}}/modelderivative/v2/designdata/job",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "x-ads-force",
+						"value": "true",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n        \"urn\": \"{{urnBase64}}\" ,\n        \"compressedUrn\":true,\n        \"rootFilename\":\"539a3e16ea3443f28a7bae7dd3f5626d.obj\"\n    },\n    \"output\": {\n        \"destination\": {\n            \"region\": \"us\"\n        },\n        \"formats\": [\n        {\n            \"type\": \"svf\",\n            \"views\":[\"2d\", \"3d\"]\n        }]\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
