@@ -444,7 +444,7 @@ export default function (AutodeskViewing) {
 }
 ```
 
-Moreover, the function for checking load module has been changed (See ):此外，检查加载模块的功能已更改(请参阅`/services/Utils.js`)：
+此外，检查加载模块的功能已更改(请参阅`/services/Utils.js`)：
 ```js
         // 如果扩展已经注册
 if (AutodeskViewing.theExtensionManager.isAvailable(name)) {
@@ -453,7 +453,7 @@ if (AutodeskViewing.theExtensionManager.isAvailable(name)) {
 }
 ```
 
-## Detailed implementation note 详细的实施说明(nuxt.js, 2 legged authtication, OSS bucket approch)
+## 详细的实施说明(nuxt.js, 2 legged authtication, OSS bucket approch)
 
 请注意，集线器方法需要3 legged的oauth。如果您不打算实现重定向和用户管理，则可以改用OSS存储桶方法。
 
